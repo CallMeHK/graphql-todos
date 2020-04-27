@@ -9,7 +9,7 @@ export interface DBFields {
 
 export type Model<T> = DBFields & T
 
-export type UpdateModel<T> = {id: number} & Partial<T>
+export type UpdateModel<T> = { id: number } & Partial<T>
 
 let todos: Model<Todo>[] = [
     {
@@ -35,7 +35,7 @@ const getAllTodos = () => todos
 
 const getTodo = (id: number) => todos.filter((todo: Model<Todo>) => todo.id === id)[0]
 
-const addTodo = ({description, done}: Todo): Model<Todo> => {
+const addTodo = ({ description, done }: Todo): Model<Todo> => {
     const newTodo = { id: newId, description, done }
     todos = [...todos, newTodo]
     newId = newId + 1
@@ -46,11 +46,11 @@ const addManyTodos = (manyTodos: Todo[]): Model<Todo>[] => manyTodos.map(addTodo
 
 const updateTodo = ({ id, description, done }: UpdateModel<Todo>) => {
     const todoIndex = todos.findIndex((todo: Model<Todo>) => todo.id === id)
-    if (todoIndex > -1) {
+   if (todoIndex > -1) {
         todos[todoIndex] = {
             ...todos[todoIndex],
             ...(description && { description }),
-            ...(done && { done }),
+            ...(done !== undefined && { done }),
         }
         return {
             success: true,
@@ -80,9 +80,7 @@ const todoService = {
     add: addTodo,
     addMany: addManyTodos,
     update: updateTodo,
-    delete: deleteTodo
+    delete: deleteTodo,
 }
 
-export {
-    todoService
-}
+export { todoService }
