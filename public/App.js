@@ -18,11 +18,11 @@ const App = () => {
     const addTodo = useAddTodo()
 
     // subscriptions
-    useNewTodoSubscription(({ newTodo }) => setTodos((oldTodos) => [...oldTodos, newTodo]))
+    useNewTodoSubscription(({ newTodo }) => setTodos((oldTodos) => [...oldTodos, newTodo.todo]))
     useUpdateTodoSubscription(({ updatedTodo }) =>
         setTodos((oldTodos) => oldTodos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo)))
     )
-    useDeleteTodoSubscription(({ deletedTodo }) => setTodos((oldTodos) => oldTodos.filter((todo) => todo.id !== deletedTodo)))
+    useDeleteTodoSubscription(({ deletedTodo }) => setTodos((oldTodos) => oldTodos.filter((todo) => todo.id !== deletedTodo.id)))
 
     const handleChange = React.useCallback(
         (e) => {

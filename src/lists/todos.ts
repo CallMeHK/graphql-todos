@@ -9,26 +9,28 @@ const todo_channel = {
 
 const resolvers: IResolvers = {
     Query: {
-        getAllTodos: () => todoService.getAll(),
+        getAllTodos: async () => todoService.getAll(),
         getTodo: (_, { id }: { id: number }) => todoService.getOne(id),
     },
     Mutation: {
-        addTodo: (parent, todo: Todo, { pubsub }, info) => {
-            const newTodo = todoService.add(todo)
-            pubsub.publish(todo_channel.NEW, { newTodo })
+        addTodo: async (parent, todo: Todo, { pubsub }, info) => {
+            const newTodo = await todoService.add(todo)
+            if (!newTodo.error) {
+                pubsub.publish(todo_channel.NEW, { newTodo })
+            }
             return newTodo
         },
         updateTodo: (parent, todo: UpdateModel<Todo>, { pubsub }, info) => {
             const updatedTodo = todoService.update(todo)
             if (updatedTodo.success) {
-                pubsub.publish(todo_channel.UPDATED, { updatedTodo: updatedTodo.todo })
+                pubsub.publish(todo_channel.UPDATED, { updatedTodo })
             }
             return updatedTodo
         },
-        deleteTodo: (parent, { id }: { id: number }, { pubsub }, info) => {
-            const deletedTodo = todoService.delete(id)
-            if (deletedTodo.success) {
-                pubsub.publish(todo_channel.DELETED, { deletedTodo: id })
+        deleteTodo: async (parent, { id }: { id: number }, { pubsub }, info) => {
+            const deletedTodo = await todoService.delete(id)
+            if (!deletedTodo.error) {
+                pubsub.publish(todo_channel.DELETED, { deletedTodo })
             }
             return deletedTodo
         },

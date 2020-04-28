@@ -1,3 +1,5 @@
+import { TodoModel, ITodo } from './todo.model'
+
 export interface Todo {
     description: string
     done: boolean
@@ -31,22 +33,37 @@ let todos: Model<Todo>[] = [
 
 let newId = 4
 
-const getAllTodos = () => todos
-
-const getTodo = (id: number) => todos.filter((todo: Model<Todo>) => todo.id === id)[0]
-
-const addTodo = ({ description, done }: Todo): Model<Todo> => {
-    const newTodo = { id: newId, description, done }
-    todos = [...todos, newTodo]
-    newId = newId + 1
-    return newTodo
+type AllTodos = { todos?: ITodo[]; error?: string }
+const getAllTodos = async (): Promise<AllTodos> => {
+    const allTodos = await TodoModel.getAll()
+    return allTodos.match<AllTodos>({
+        Ok: (todos: ITodo[]) => ({ todos }),
+        Err: (error: string) => ({ error }),
+    })
 }
 
-const addManyTodos = (manyTodos: Todo[]): Model<Todo>[] => manyTodos.map(addTodo)
+type OneTodo = { todo?: ITodo; error?: string }
+const getTodo = async (id: number): Promise<OneTodo> => {
+    const todo = await TodoModel.getOne(id)
+    return todo.match<OneTodo>({
+        Ok: (todo: ITodo) => ({ todo }),
+        Err: (error: string) => ({ error }),
+    })
+}
+
+const addTodo = async ({ description, done }: Todo): Promise<OneTodo> => {
+    const createdTodo = await TodoModel.create({ description, done })
+    return createdTodo.match<OneTodo>({
+        Ok: (todo: ITodo) => ({ todo }),
+        Err: (error: string) => ({ error }),
+    })
+}
+
+// const addManyTodos = (manyTodos: Todo[]): Model<Todo>[] => manyTodos.map(addTodo)
 
 const updateTodo = ({ id, description, done }: UpdateModel<Todo>) => {
     const todoIndex = todos.findIndex((todo: Model<Todo>) => todo.id === id)
-   if (todoIndex > -1) {
+    if (todoIndex > -1) {
         todos[todoIndex] = {
             ...todos[todoIndex],
             ...(description && { description }),
@@ -62,23 +79,20 @@ const updateTodo = ({ id, description, done }: UpdateModel<Todo>) => {
     }
 }
 
-const deleteTodo = (id: number) => {
-    if (todos.findIndex((todo: Model<Todo>) => todo.id === id) === -1) {
-        return {
-            success: false,
-        }
-    }
-    todos = todos.filter((todo: Model<Todo>) => todo.id !== id)
-    return {
-        success: true,
-    }
+type DeleteOne = { id?: number; error?: string }
+const deleteTodo = async (id: number): Promise<DeleteOne> => {
+    const deletedTodo = await TodoModel.delete(id)
+    return deletedTodo.match<DeleteOne>({
+        Ok: (response: { id: number }) => ({ id: response.id }),
+        Err: (error: string) => ({ error }),
+    })
 }
 
 const todoService = {
     getAll: getAllTodos,
     getOne: getTodo,
     add: addTodo,
-    addMany: addManyTodos,
+    // addMany: addManyTodos,
     update: updateTodo,
     delete: deleteTodo,
 }

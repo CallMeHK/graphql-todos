@@ -16,21 +16,36 @@ const typeDefs = gql`
         success: Boolean
     }
 
+    type ManyTodos {
+        todos: [Todo]
+        error: String
+    }
+
+    type OneTodo {
+        todo: Todo
+        error: String
+    }
+
+    type DeletedTodo {
+        id: Int
+        error: String
+    }
+
     type Query {
-        getAllTodos: [Todo]
-        getTodo(id: Int!): Todo
+        getAllTodos: ManyTodos
+        getTodo(id: Int!): OneTodo
     }
 
     type Mutation {
-        addTodo(description: String!, done: Boolean!): Todo
+        addTodo(description: String!, done: Boolean!): OneTodo
         updateTodo(id: Int!, description: String, done: Boolean): UpdateTodo
-        deleteTodo(id: Int!): Success
+        deleteTodo(id: Int!): DeletedTodo
     }
 
     type Subscription {
-        newTodo: Todo,
-        updatedTodo: Todo,
-        deletedTodo: Int
+        newTodo: OneTodo
+        updatedTodo: Todo
+        deletedTodo: DeletedTodo
     }
 `
 

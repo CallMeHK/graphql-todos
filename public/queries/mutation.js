@@ -3,9 +3,12 @@ import { gql } from 'apollo-boost'
 const ADD_TODO = gql`
     mutation AddTodo($description: String!, $done: Boolean!) {
         addTodo(description: $description, done: $done) {
-            id
-            description
-            done
+            todo {
+                id
+                description
+                done
+            }
+            error
         }
     }
 `
@@ -26,7 +29,8 @@ const UPDATE_TODO = gql`
 const DELETE_TODO = gql`
     mutation DeleteTodo($id: Int!) {
         deleteTodo(id: $id) {
-            success
+            id
+            error
         }
     }
 `

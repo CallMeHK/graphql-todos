@@ -3,9 +3,12 @@ import { gql } from 'apollo-boost'
 const GET_ALL_TODOS = gql`
     {
         getAllTodos {
-            id
-            description
-            done
+            todos {
+                id
+                description
+                done
+            }
+            error
         }
     }
 `
@@ -13,8 +16,12 @@ const GET_ALL_TODOS = gql`
 const GET_TODO = gql`
     query GetTodo($id: Int!) {
         getTodo(id: $id) {
-            description
-            done
+            todo {
+                id
+                description
+                done
+            }
+            error
         }
     }
 `

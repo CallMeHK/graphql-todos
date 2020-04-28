@@ -6,7 +6,7 @@ import { NEW_TODO, UPDATED_TODO, DELETED_TODO } from './queries/subscription'
 
 const useGetAllTodos = () => {
     const { loading, error, data } = useQuery(GET_ALL_TODOS)
-    const allTodos = !loading && !error ? data.getAllTodos : []
+    const allTodos = !loading && !error ? data.getAllTodos.todos : []
     return { loading, error, data, allTodos }
 }
 
