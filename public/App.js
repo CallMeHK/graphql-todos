@@ -20,7 +20,7 @@ const App = () => {
     // subscriptions
     useNewTodoSubscription(({ newTodo }) => setTodos((oldTodos) => [...oldTodos, newTodo.todo]))
     useUpdateTodoSubscription(({ updatedTodo }) =>
-        setTodos((oldTodos) => oldTodos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo)))
+        setTodos((oldTodos) => oldTodos.map((todo) => (todo.id === updatedTodo.todo.id ? updatedTodo.todo : todo)))
     )
     useDeleteTodoSubscription(({ deletedTodo }) => setTodos((oldTodos) => oldTodos.filter((todo) => todo.id !== deletedTodo.id)))
 
@@ -62,7 +62,7 @@ const App = () => {
     return (
         <div style={{ maxWidth: '600px' }}>
             <h2>Todos</h2>
-            <input value={description} onChange={handleChange} onKeyPress={handleEnter} />
+            <textarea value={description} onChange={handleChange} onKeyPress={handleEnter} />
             <button onClick={() => handleSubmit({ variables: { description, done: false } })}>Submit</button>
             <div>{todos && todos.map((todo) => <TodoPanel key={'todo' + todo.id} todo={todo} />)}</div>
         </div>

@@ -61,22 +61,12 @@ const addTodo = async ({ description, done }: Todo): Promise<OneTodo> => {
 
 // const addManyTodos = (manyTodos: Todo[]): Model<Todo>[] => manyTodos.map(addTodo)
 
-const updateTodo = ({ id, description, done }: UpdateModel<Todo>) => {
-    const todoIndex = todos.findIndex((todo: Model<Todo>) => todo.id === id)
-    if (todoIndex > -1) {
-        todos[todoIndex] = {
-            ...todos[todoIndex],
-            ...(description && { description }),
-            ...(done !== undefined && { done }),
-        }
-        return {
-            success: true,
-            todo: todos[todoIndex],
-        }
-    }
-    return {
-        success: false,
-    }
+const updateTodo = async ({ id, description, done }: Partial<ITodo>) : Promise<OneTodo>=> {
+    const updatedTodo = await TodoModel.update(id, {description, done})
+    return updatedTodo.match<OneTodo>({
+        Ok: (todo: ITodo) => ({ todo }),
+        Err: (error: string) => ({ error }),
+    })
 }
 
 type DeleteOne = { id?: number; error?: string }

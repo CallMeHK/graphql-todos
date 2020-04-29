@@ -14,13 +14,14 @@ const NEW_TODO = gql`
 `
 
 const UPDATED_TODO = gql`
-    subscription {
-        updatedTodo {
-            id
-            description
-            done
-        }
+subscription {
+  updatedTodo {
+    todo {
+      id, description, done
     }
+    error
+  }
+}
 `
 
 const DELETED_TODO = gql`

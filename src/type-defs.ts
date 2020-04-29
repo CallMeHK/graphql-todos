@@ -7,11 +7,6 @@ const typeDefs = gql`
         done: Boolean
     }
 
-    type UpdateTodo {
-        success: Boolean
-        todo: Todo
-    }
-
     type Success {
         success: Boolean
     }
@@ -38,13 +33,13 @@ const typeDefs = gql`
 
     type Mutation {
         addTodo(description: String!, done: Boolean!): OneTodo
-        updateTodo(id: Int!, description: String, done: Boolean): UpdateTodo
+        updateTodo(id: Int!, description: String, done: Boolean): OneTodo
         deleteTodo(id: Int!): DeletedTodo
     }
 
     type Subscription {
         newTodo: OneTodo
-        updatedTodo: Todo
+        updatedTodo: OneTodo
         deletedTodo: DeletedTodo
     }
 `

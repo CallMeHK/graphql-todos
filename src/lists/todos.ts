@@ -20,9 +20,9 @@ const resolvers: IResolvers = {
             }
             return newTodo
         },
-        updateTodo: (parent, todo: UpdateModel<Todo>, { pubsub }, info) => {
-            const updatedTodo = todoService.update(todo)
-            if (updatedTodo.success) {
+        updateTodo: async (parent, todo: UpdateModel<Todo>, { pubsub }, info) => {
+            const updatedTodo = await todoService.update(todo)
+            if (!updatedTodo.error) {
                 pubsub.publish(todo_channel.UPDATED, { updatedTodo })
             }
             return updatedTodo

@@ -10,17 +10,17 @@ const init = async () => {
         await sequelize.sync()
 
         const firstTodo = await TodoModel.Todo.findByPk(1)
-        
+
         if (!firstTodo) {
-            TodoModel.Todo.create({
+            await TodoModel.Todo.create({
                 description: 'hello',
                 done: false,
             })
-            TodoModel.Todo.create({
+            await TodoModel.Todo.create({
                 description: 'my name is elder price',
                 done: false,
             })
-            TodoModel.Todo.create({
+            await TodoModel.Todo.create({
                 description: 'and i would like to share with you the most amazing book',
                 done: false,
             })

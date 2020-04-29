@@ -1,6 +1,7 @@
 import { Sequelize, Model, DataTypes, BuildOptions } from 'sequelize'
 import { Result } from 'true-myth'
 import { sequelize } from './init'
+import { F } from '../util'
 
 export interface ITodo {
     readonly id: number
@@ -48,7 +49,7 @@ const mapDataValues = <T>(data: FromORM<T>[]): T[] => data.map(getDataValues)
 
 const getAll = async (limit: number = 1000): Promise<Result<ITodo[], string>> => {
     try {
-        const unwrappedAllTodos = (await Todo.findAll({ limit })) as FromORM<ITodo>[]
+        const unwrappedAllTodos = (await Todo.findAll({ limit, order: [['id', 'ASC']] })) as FromORM<ITodo>[]
         return Result.ok(unwrappedAllTodos)
             .map(mapDataValues)
             .orElse(() => Result.err('An unexpected error occurred'))
@@ -80,6 +81,27 @@ const create = async (todo: CreateORM<ITodo>) => {
     }
 }
 
+type UpdateORM<T> = Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>
+type UpdateResponse<T> = [number, FromORM<T>[]]
+const update = async (id: number, partialTodo: UpdateORM<ITodo>): Promise<Result<ITodo, string>> => {
+    try {
+        const unwrappedUpdatedTodo = (await Todo.update(partialTodo, {
+            where: {
+                id,
+            },
+            returning: true,
+        })) as UpdateResponse<ITodo>
+
+        return Result.ok(unwrappedUpdatedTodo)
+            .chain((result: UpdateResponse<ITodo>) => (result[0] > 0 ? Result.ok(result) : Result.err('Record does not exist')))
+            .map((result: UpdateResponse<ITodo>) => result[1][0])
+            .map(getDataValues)
+            .mapErr((error: any) => (typeof error === 'string' ? error : 'An unexpected error occurred'))
+    } catch (e) {
+        return Result.err(e.message as string)
+    }
+}
+
 const deleteOne = async (id: number): Promise<Result<{ id: number }, string>> => {
     try {
         const unwrappedDeleteTodo = (await Todo.destroy({
@@ -87,10 +109,6 @@ const deleteOne = async (id: number): Promise<Result<{ id: number }, string>> =>
                 id,
             },
         })) as number
-
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        console.log(unwrappedDeleteTodo)
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
         return Result.ok(unwrappedDeleteTodo)
             .chain((result: number) => (result > 0 ? Result.ok(result) : Result.err('Record does not exist')))
@@ -105,6 +123,7 @@ const TodoModel = {
     getAll,
     getOne,
     create,
+    update,
     delete: deleteOne,
 }
 

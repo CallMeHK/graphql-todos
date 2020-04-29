@@ -16,12 +16,12 @@ const ADD_TODO = gql`
 const UPDATE_TODO = gql`
     mutation UpdateTodo($id: Int!, $description: String, $done: Boolean) {
         updateTodo(id: $id, description: $description, done: $done) {
-            success
             todo {
                 id
                 description
                 done
             }
+            error
         }
     }
 `
