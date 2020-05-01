@@ -1,15 +1,7 @@
 import { Sequelize, Model, DataTypes, BuildOptions } from 'sequelize'
 import { Result } from 'true-myth'
 import { sequelize } from './init'
-import { F } from '../util'
-
-export interface ITodo {
-    readonly id: number
-    description: string
-    done: boolean
-    readonly createdAt: Date
-    readonly updatedAt: Date
-}
+import { IORM, ITodo } from './todo.interface'
 
 class Todo extends Model {
     public id!: number
@@ -43,13 +35,12 @@ const init = async () =>
         }
     )
 
-type FromORM<T> = { dataValues: T }
-const getDataValues = <T>(elt: FromORM<T>): T => elt.dataValues
-const mapDataValues = <T>(data: FromORM<T>[]): T[] => data.map(getDataValues)
+const getDataValues = <T>(elt: IORM.FromORM<T>): T => elt.dataValues
+const mapDataValues = <T>(data: IORM.FromORM<T>[]): T[] => data.map(getDataValues)
 
 const getAll = async (limit: number = 1000): Promise<Result<ITodo[], string>> => {
     try {
-        const unwrappedAllTodos = (await Todo.findAll({ limit, order: [['id', 'ASC']] })) as FromORM<ITodo>[]
+        const unwrappedAllTodos = (await Todo.findAll({ limit, order: [['id', 'ASC']] })) as IORM.FromORM<ITodo>[]
         return Result.ok(unwrappedAllTodos)
             .map(mapDataValues)
             .orElse(() => Result.err('An unexpected error occurred'))
@@ -60,7 +51,7 @@ const getAll = async (limit: number = 1000): Promise<Result<ITodo[], string>> =>
 
 const getOne = async (id: number): Promise<Result<ITodo, string>> => {
     try {
-        const unwrappedTodo = (await Todo.findByPk(id)) as FromORM<ITodo>
+        const unwrappedTodo = (await Todo.findByPk(id)) as IORM.FromORM<ITodo>
         return Result.ok(unwrappedTodo)
             .map(getDataValues)
             .orElse(() => Result.err('An unexpected error occurred'))
@@ -69,10 +60,10 @@ const getOne = async (id: number): Promise<Result<ITodo, string>> => {
     }
 }
 
-type CreateORM<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>
+export type CreateORM<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>
 const create = async (todo: CreateORM<ITodo>) => {
     try {
-        const unwrappedCreatedTodo = (await Todo.create(todo)) as FromORM<ITodo>
+        const unwrappedCreatedTodo = (await Todo.create(todo)) as IORM.FromORM<ITodo>
         return Result.ok(unwrappedCreatedTodo)
             .map(getDataValues)
             .orElse(() => Result.err('An unexpected error occurred'))
@@ -81,8 +72,8 @@ const create = async (todo: CreateORM<ITodo>) => {
     }
 }
 
-type UpdateORM<T> = Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>
-type UpdateResponse<T> = [number, FromORM<T>[]]
+export type UpdateORM<T> = Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>
+export type UpdateResponse<T> = [number, IORM.FromORM<T>[]]
 const update = async (id: number, partialTodo: UpdateORM<ITodo>): Promise<Result<ITodo, string>> => {
     try {
         const unwrappedUpdatedTodo = (await Todo.update(partialTodo, {

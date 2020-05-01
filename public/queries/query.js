@@ -3,7 +3,7 @@ import { gql } from 'apollo-boost'
 const GET_ALL_TODOS = gql`
     {
         getAllTodos {
-            todos {
+            data {
                 id
                 description
                 done
@@ -16,7 +16,7 @@ const GET_ALL_TODOS = gql`
 const GET_TODO = gql`
     query GetTodo($id: Int!) {
         getTodo(id: $id) {
-            todo {
+            data {
                 id
                 description
                 done

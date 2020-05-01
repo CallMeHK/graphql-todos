@@ -3,7 +3,7 @@ import { gql } from 'apollo-boost'
 const NEW_TODO = gql`
     subscription {
         newTodo {
-            todo {
+            data {
                 id
                 description
                 done
@@ -14,14 +14,16 @@ const NEW_TODO = gql`
 `
 
 const UPDATED_TODO = gql`
-subscription {
-  updatedTodo {
-    todo {
-      id, description, done
+    subscription {
+        updatedTodo {
+            data {
+                id
+                description
+                done
+            }
+            error
+        }
     }
-    error
-  }
-}
 `
 
 const DELETED_TODO = gql`

@@ -18,9 +18,9 @@ const App = () => {
     const addTodo = useAddTodo()
 
     // subscriptions
-    useNewTodoSubscription(({ newTodo }) => setTodos((oldTodos) => [...oldTodos, newTodo.todo]))
+    useNewTodoSubscription(({ newTodo }) => setTodos((oldTodos) => [...oldTodos, newTodo.data]))
     useUpdateTodoSubscription(({ updatedTodo }) =>
-        setTodos((oldTodos) => oldTodos.map((todo) => (todo.id === updatedTodo.todo.id ? updatedTodo.todo : todo)))
+        setTodos((oldTodos) => oldTodos.map((todo) => (todo.id === updatedTodo.data.id ? updatedTodo.data : todo)))
     )
     useDeleteTodoSubscription(({ deletedTodo }) => setTodos((oldTodos) => oldTodos.filter((todo) => todo.id !== deletedTodo.id)))
 

@@ -1,5 +1,6 @@
 import { IResolvers } from 'apollo-server'
-import { todoService, Todo, UpdateModel } from '../db/todo.service'
+import { todoService } from '../db/todo.service'
+import { ITodo, IORM } from '../db/todo.interface'
 
 const todo_channel = {
     NEW: 'NEW_TODO',
@@ -13,14 +14,14 @@ const resolvers: IResolvers = {
         getTodo: (_, { id }: { id: number }) => todoService.getOne(id),
     },
     Mutation: {
-        addTodo: async (parent, todo: Todo, { pubsub }, info) => {
+        addTodo: async (parent, todo: IORM.CreateORM<ITodo>, { pubsub }, info) => {
             const newTodo = await todoService.add(todo)
             if (!newTodo.error) {
                 pubsub.publish(todo_channel.NEW, { newTodo })
             }
             return newTodo
         },
-        updateTodo: async (parent, todo: UpdateModel<Todo>, { pubsub }, info) => {
+        updateTodo: async (parent, todo: IORM.UpdateORMWithID<ITodo>, { pubsub }, info) => {
             const updatedTodo = await todoService.update(todo)
             if (!updatedTodo.error) {
                 pubsub.publish(todo_channel.UPDATED, { updatedTodo })

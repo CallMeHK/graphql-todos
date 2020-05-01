@@ -1,78 +1,41 @@
-import { TodoModel, ITodo } from './todo.model'
+import { TodoModel } from './todo.model'
+import { IORM, ITodo, ReducerTypes } from './todo.interface'
 
-export interface Todo {
-    description: string
-    done: boolean
-}
-
-export interface DBFields {
-    id: number
-}
-
-export type Model<T> = DBFields & T
-
-export type UpdateModel<T> = { id: number } & Partial<T>
-
-let todos: Model<Todo>[] = [
-    {
-        id: 1,
-        description: 'do this',
-        done: false,
-    },
-    {
-        id: 2,
-        description: 'do that',
-        done: false,
-    },
-    {
-        id: 3,
-        description: 'do somethin else',
-        done: true,
-    },
-]
-
-let newId = 4
-
-type AllTodos = { todos?: ITodo[]; error?: string }
-const getAllTodos = async (): Promise<AllTodos> => {
+const getAllTodos = async (): Promise<ReducerTypes.AllRecords<ITodo>> => {
     const allTodos = await TodoModel.getAll()
-    return allTodos.match<AllTodos>({
-        Ok: (todos: ITodo[]) => ({ todos }),
+    return allTodos.match<ReducerTypes.AllRecords<ITodo>>({
+        Ok: (data: ITodo[]) => ({ data }),
         Err: (error: string) => ({ error }),
     })
 }
 
-type OneTodo = { todo?: ITodo; error?: string }
-const getTodo = async (id: number): Promise<OneTodo> => {
+const getTodo = async (id: number): Promise<ReducerTypes.OneRecord<ITodo>> => {
     const todo = await TodoModel.getOne(id)
-    return todo.match<OneTodo>({
-        Ok: (todo: ITodo) => ({ todo }),
+    return todo.match<ReducerTypes.OneRecord<ITodo>>({
+        Ok: (data: ITodo) => ({ data }),
         Err: (error: string) => ({ error }),
     })
 }
 
-const addTodo = async ({ description, done }: Todo): Promise<OneTodo> => {
+const addTodo = async ({ description, done }: IORM.CreateORM<ITodo>): Promise<ReducerTypes.OneRecord<ITodo>> => {
     const createdTodo = await TodoModel.create({ description, done })
-    return createdTodo.match<OneTodo>({
-        Ok: (todo: ITodo) => ({ todo }),
+    return createdTodo.match<ReducerTypes.OneRecord<ITodo>>({
+        Ok: (data: ITodo) => ({ data }),
         Err: (error: string) => ({ error }),
     })
 }
 
-// const addManyTodos = (manyTodos: Todo[]): Model<Todo>[] => manyTodos.map(addTodo)
-
-const updateTodo = async ({ id, description, done }: Partial<ITodo>) : Promise<OneTodo>=> {
+const updateTodo = async ({ id, description, done }: IORM.UpdateORMWithID<ITodo>) : Promise<ReducerTypes.OneRecord<ITodo>>=> {
     const updatedTodo = await TodoModel.update(id, {description, done})
-    return updatedTodo.match<OneTodo>({
-        Ok: (todo: ITodo) => ({ todo }),
+    return updatedTodo.match<ReducerTypes.OneRecord<ITodo>>({
+        Ok: (data: ITodo) => ({ data }),
         Err: (error: string) => ({ error }),
     })
 }
 
-type DeleteOne = { id?: number; error?: string }
-const deleteTodo = async (id: number): Promise<DeleteOne> => {
+const deleteTodo = async (id: number): Promise<ReducerTypes.DeleteOne> => {
     const deletedTodo = await TodoModel.delete(id)
-    return deletedTodo.match<DeleteOne>({
+    return deletedTodo.match<ReducerTypes.DeleteOne>({
         Ok: (response: { id: number }) => ({ id: response.id }),
         Err: (error: string) => ({ error }),
     })
@@ -82,7 +45,6 @@ const todoService = {
     getAll: getAllTodos,
     getOne: getTodo,
     add: addTodo,
-    // addMany: addManyTodos,
     update: updateTodo,
     delete: deleteTodo,
 }

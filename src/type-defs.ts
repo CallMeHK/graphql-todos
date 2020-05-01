@@ -7,17 +7,13 @@ const typeDefs = gql`
         done: Boolean
     }
 
-    type Success {
-        success: Boolean
-    }
-
     type ManyTodos {
-        todos: [Todo]
+        data: [Todo]
         error: String
     }
 
     type OneTodo {
-        todo: Todo
+        data: Todo
         error: String
     }
 
